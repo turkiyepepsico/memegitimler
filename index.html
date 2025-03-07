@@ -44,7 +44,7 @@
             flex: 1;
             padding: 10px;
         }
-        iframe {
+        iframe, video {
             width: 100%;
             height: 100%;
             border: none;
@@ -54,6 +54,13 @@
             color: #555;
             text-align: center;
             padding: 20px;
+        }
+        .viewer-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -67,12 +74,14 @@
 
     <!-- Sağ İçerik Alanı -->
     <div id="content">
-        <iframe id="viewer" src=""></iframe>
+        <div id="viewer" class="viewer-container">
+            <!-- Dinamik içerik burada gösterilecek -->
+        </div>
     </div>
 
     <script>
         const repoOwner = "turkiyepepsico";  // GitHub kullanıcı adı
-        const repoName = "memegitimler";         // Repo adı
+        const repoName = "memegitimler";     // Repo adı
         const branch = "main";               // Şube adı (genelde "main" veya "master")
         const basePath = "egitimler";        // Ana klasör yolu
 
@@ -117,7 +126,7 @@
                     fileElement.href = "#";
                     fileElement.textContent = "📄 " + file.name;
                     fileElement.onclick = function () {
-                        openFile(file.download_url);
+                        openFile(file.download_url, file.name);
                     };
                     parentElement.appendChild(fileElement);
                 });
@@ -128,8 +137,32 @@
             }
         }
 
-        function openFile(url) {
-            document.getElementById("viewer").src = url;
+        function openFile(url, fileName) {
+            const viewer = document.getElementById("viewer");
+            const extension = fileName.split('.').pop().toLowerCase();
+
+            viewer.innerHTML = ''; // Clear previous content
+
+            if (extension === 'pdf') {
+                const iframe = document.createElement("iframe");
+                iframe.src = url;
+                viewer.appendChild(iframe);
+            } else if (extension === 'ppt' || extension === 'pptx') {
+                const iframe = document.createElement("iframe");
+                iframe.src = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
+                viewer.appendChild(iframe);
+            } else if (extension === 'doc' || extension === 'docx') {
+                const iframe = document.createElement("iframe");
+                iframe.src = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
+                viewer.appendChild(iframe);
+            } else if (extension === 'mp4' || extension === 'mov' || extension === 'avi') {
+                const video = document.createElement("video");
+                video.controls = true;
+                video.src = url;
+                viewer.appendChild(video);
+            } else {
+                viewer.innerHTML = `<p>Bu dosya türü için destek yok.</p>`;
+            }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
