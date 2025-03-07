@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEM Eğitim Portalı v0.1</title>
+    <title>MEM Eğitim Portalı</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,22 +12,31 @@
             margin: 0;
         }
         #menu {
-            width: 250px;
+            width: 300px;
             background: #f4f4f4;
             padding: 15px;
             overflow-y: auto;
             border-right: 2px solid #ccc;
         }
-        #menu a {
-            display: block;
-            padding: 8px;
+        .folder {
+            font-weight: bold;
+            cursor: pointer;
             margin: 5px 0;
+        }
+        .file {
+            margin-left: 15px;
+            display: none; /* Başlangıçta dosyalar gizli olacak */
+        }
+        .file a {
+            display: block;
+            padding: 5px;
             text-decoration: none;
             color: #333;
             background: #ddd;
             border-radius: 5px;
+            margin: 3px 0;
         }
-        #menu a:hover {
+        .file a:hover {
             background: #bbb;
         }
         #content {
@@ -45,16 +54,83 @@
 
     <!-- Sol Menü -->
     <div id="menu">
-        <h3>📂 Eğitim İçerikleri</h3>
-        <div id="menu-list">Loading...</div>
+        <h3>Eğitim İçerikleri</h3>
+        <div id="fileTree">Yükleniyor...</div>
     </div>
 
     <!-- Sağ İçerik Alanı -->
     <div id="content">
-        <iframe id="viewer" src="" allowfullscreen></iframe>
+        <iframe id="viewer" src=""></iframe>
     </div>
 
-    <script src="scripts.js"></script>
+    <script>
+        const repoOwner = "turkiyepepsico";  // GitHub kullanıcı adın
+        const repoName = "memegitimler";         // Repo adı
+        const branch = "main";               // Şube adı (genelde "main" veya "master")
+        const basePath = "egitimler";        // Ana klasör yolu
+
+        async function fetchGitHubFiles(path, parentElement) {
+            const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}?ref=${branch}`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Dosya listesi alınamadı");
+                const data = await response.json();
+
+                // Klasörleri ve dosyaları ayır
+                const folders = data.filter(item => item.type === "dir");
+                const files = data.filter(item => item.type === "file");
+
+                // Klasörleri ekleyelim
+                folders.forEach(folder => {
+                    const folderElement = document.createElement("div");
+                    folderElement.className = "folder";
+                    folderElement.textContent = "📁 " + folder.name;
+                    folderElement.onclick = function () {
+                        const childFiles = folderElement.nextElementSibling;
+                        if (childFiles.style.display === "none") {
+                            childFiles.style.display = "block";
+                        } else {
+                            childFiles.style.display = "none";
+                        }
+                    };
+
+                    const childFilesElement = document.createElement("div");
+                    childFilesElement.className = "file";
+                    childFilesElement.style.display = "none";
+
+                    parentElement.appendChild(folderElement);
+                    parentElement.appendChild(childFilesElement);
+
+                    fetchGitHubFiles(folder.path, childFilesElement);
+                });
+
+                // Dosyaları ekleyelim
+                files.forEach(file => {
+                    const fileElement = document.createElement("a");
+                    fileElement.href = "#";
+                    fileElement.textContent = "📄 " + file.name;
+                    fileElement.onclick = function () {
+                        openFile(file.download_url);
+                    };
+                    parentElement.appendChild(fileElement);
+                });
+
+            } catch (error) {
+                console.error("Hata:", error);
+            }
+        }
+
+        function openFile(url) {
+            document.getElementById("viewer").src = url;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const fileTree = document.getElementById("fileTree");
+            fileTree.innerHTML = "";
+            fetchGitHubFiles(basePath, fileTree);
+        });
+
+    </script>
 
 </body>
 </html>
