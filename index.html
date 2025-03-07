@@ -46,11 +46,15 @@
     <!-- Sol Menü -->
     <div id="menu">
         <h3>MEM Eğitim İçerikleri</h3>
-        <a href="#" onclick="openFile('https://drive.google.com/drive/folders/1HzZFUe3_1Hercn900GUYhUWKyo4RVKFx?usp=sharing')">1. Soğutucu</a>
-        <a href="#" onclick="openFile('https://drive.google.com/drive/folders/1F5FjzfUcmSjPalz686fAOcKU07asSkzz?usp=sharing')">2. Fountain</a>
-        <a href="#" onclick="openFile('https://drive.google.com/drive/folders/1JfmcSifTTJbgmkpiApLUAoFNhfqjzBtM?usp=sharing')">3. Kule</a>
-        <a href="#" onclick="openFile('https://drive.google.com/drive/folders/132AuHp5mhC88FyRM0lCiTwFkXgFZryPE?usp=sharing')">4. El Terminali</a>
-
+        <a href="https://drive.google.com/drive/folders/1HzZFUe3_1Hercn900GUYhUWKyo4RVKFx?usp=sharing" target="_blank">📁 1. Soğutucu</a>
+        <a href="https://drive.google.com/drive/folders/1F5FjzfUcmSjPalz686fAOcKU07asSkzz?usp=sharing" target="_blank">📁 2. Fountain</a>
+        <a href="https://drive.google.com/drive/folders/1JfmcSifTTJbgmkpiApLUAoFNhfqjzBtM?usp=sharing" target="_blank">📁 3. Kule</a>
+        <a href="https://drive.google.com/drive/folders/132AuHp5mhC88FyRM0lCiTwFkXgFZryPE?usp=sharing" target="_blank">📁 4. El Terminali</a>
+        <hr>
+        <h3>🔗 Dosyalar</h3>
+        <a href="#" onclick="openFile('https://drive.google.com/file/d/1ABCD12345/view?usp=sharing')">📄 Örnek PDF</a>
+        <a href="#" onclick="openFile('https://drive.google.com/file/d/1EFGH67890/view?usp=sharing')">📊 Örnek PPT</a>
+        <a href="#" onclick="openFile('https://drive.google.com/file/d/1IJKL09876/view?usp=sharing')">🎥 Örnek Video</a>
     </div>
 
     <!-- Sağ İçerik Alanı -->
@@ -60,7 +64,6 @@
 
     <script>
         function openFile(url) {
-            // Google Drive dosyalarını iframe içinde açmak için
             let embedUrl = url.replace("/view", "/preview");
             document.getElementById("viewer").src = embedUrl;
         }
