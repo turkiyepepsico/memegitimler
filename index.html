@@ -17,6 +17,7 @@
             padding: 15px;
             overflow-y: auto;
             border-right: 2px solid #ccc;
+            height: 100vh;
         }
         .folder {
             font-weight: bold;
@@ -48,6 +49,12 @@
             height: 100%;
             border: none;
         }
+        .loading {
+            font-size: 18px;
+            color: #555;
+            text-align: center;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
@@ -64,7 +71,7 @@
     </div>
 
     <script>
-        const repoOwner = "turkiyepepsico";  // GitHub kullanıcı adın
+        const repoOwner = "turkiyepepsico";  // GitHub kullanıcı adı
         const repoName = "memegitimler";         // Repo adı
         const branch = "main";               // Şube adı (genelde "main" veya "master")
         const basePath = "egitimler";        // Ana klasör yolu
@@ -117,6 +124,7 @@
 
             } catch (error) {
                 console.error("Hata:", error);
+                parentElement.innerHTML = "Dosyalar yüklenirken bir hata oluştu.";
             }
         }
 
@@ -126,7 +134,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const fileTree = document.getElementById("fileTree");
-            fileTree.innerHTML = "";
+            fileTree.innerHTML = "<div class='loading'>Yükleniyor...</div>";
             fetchGitHubFiles(basePath, fileTree);
         });
 
