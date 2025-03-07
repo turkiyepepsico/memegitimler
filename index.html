@@ -43,6 +43,7 @@
         #content {
             flex: 1;
             padding: 10px;
+            overflow: hidden;
         }
         iframe, video {
             width: 100%;
@@ -143,6 +144,10 @@
 
             viewer.innerHTML = ''; // Clear previous content
 
+            // Prevent the right-click context menu to avoid downloading
+            viewer.addEventListener('contextmenu', (e) => e.preventDefault());
+
+            // For PDFs, Office files, videos, etc., we will display them in the iframe or video tag
             if (extension === 'pdf') {
                 const iframe = document.createElement("iframe");
                 iframe.src = url;
