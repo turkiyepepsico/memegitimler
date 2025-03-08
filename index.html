@@ -10,6 +10,7 @@
             display: flex;
             height: 100vh;
             margin: 0;
+            user-select: none; /* Seçmeyi engelle */
         }
         #menu {
             width: 300px;
@@ -134,6 +135,19 @@
         document.addEventListener("DOMContentLoaded", () => {
             const fileTree = document.getElementById("fileTree");
             fetchGitHubFiles(basePath, fileTree);
+        });
+
+        // Sağ tıklama menüsünü engelle
+        document.addEventListener("contextmenu", event => event.preventDefault());
+
+        // Klavye ile kaydetmeyi engelle (Ctrl+S, Ctrl+P vb.)
+        document.addEventListener("keydown", function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                const key = event.key.toLowerCase();
+                if (key === "s" || key === "p" || key === "u" || key === "a" || key === "c") {
+                    event.preventDefault();
+                }
+            }
         });
     </script>
 
