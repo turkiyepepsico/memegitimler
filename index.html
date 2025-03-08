@@ -36,6 +36,7 @@
             background: #ddd;
             border-radius: 5px;
             margin: 3px 0;
+            pointer-events: none; /* İndirmeyi engelle */
         }
         .file a:hover {
             background: #bbb;
@@ -118,7 +119,7 @@
                     fileElement.textContent = "📄 " + file.name;
                     fileElement.onclick = function (event) {
                         event.preventDefault(); // İndirmeyi engelle
-                        openFile(file.download_url);
+                        openFile(file.download_url, file.name);
                     };
                     parentElement.appendChild(fileElement);
                 });
@@ -128,8 +129,20 @@
             }
         }
 
-        function openFile(url) {
-            document.getElementById("viewer").src = url;
+        function openFile(url, fileName) {
+            const viewer = document.getElementById("viewer");
+            const extension = fileName.split('.').pop().toLowerCase();
+
+            if (extension === 'pdf') {
+                viewer.src = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
+            } else if (['ppt', 'pptx', 'doc', 'docx'].includes(extension)) {
+                viewer.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+            } else if (['mp4', 'mov', 'avi'].includes(extension)) {
+                viewer.src = url;
+            } else {
+                viewer.src = "";
+                alert("Bu dosya formatı desteklenmiyor.");
+            }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -140,11 +153,11 @@
         // Sağ tıklama menüsünü engelle
         document.addEventListener("contextmenu", event => event.preventDefault());
 
-        // Klavye ile kaydetmeyi engelle (Ctrl+S, Ctrl+P vb.)
+        // Klavye ile kaydetmeyi engelle (Ctrl+S, Ctrl+P, F12 vb.)
         document.addEventListener("keydown", function(event) {
             if (event.ctrlKey || event.metaKey) {
                 const key = event.key.toLowerCase();
-                if (key === "s" || key === "p" || key === "u" || key === "a" || key === "c") {
+                if (["s", "p", "u", "a", "c"].includes(key) || event.keyCode === 123) {
                     event.preventDefault();
                 }
             }
