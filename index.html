@@ -35,7 +35,6 @@
             background: #ddd;
             border-radius: 5px;
             margin: 3px 0;
-            pointer-events: none; /* İndirmeyi engelle */
         }
         .file a:hover {
             background: #bbb;
@@ -60,7 +59,7 @@
     <!-- Sol Menü -->
     <div id="menu">
         <h3>Eğitim İçerikleri</h3>
-        <div id="fileTree" class="loading">İçerikler Yükleniyor...</div>
+        <div id="fileTree" class="loading">Yükleniyor...</div>
     </div>
 
     <!-- Sağ İçerik Alanı -->
@@ -82,7 +81,10 @@
                 const data = await response.json();
 
                 // "Yükleniyor..." yazısını kaldır
-                document.getElementById("fileTree").innerHTML = "";
+                if (document.getElementById("fileTree").classList.contains("loading")) {
+                    document.getElementById("fileTree").innerHTML = "";
+                    document.getElementById("fileTree").classList.remove("loading");
+                }
 
                 // Klasörleri ve dosyaları ayır
                 const folders = data.filter(item => item.type === "dir");
@@ -131,11 +133,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const fileTree = document.getElementById("fileTree");
-            fileTree.innerHTML = "<div class='loading'>Yükleniyor...</div>";
-
-            fetchGitHubFiles(basePath, fileTree).then(() => {
-                fileTree.innerHTML = ""; // Menü yüklendikten sonra temizle
-            });
+            fetchGitHubFiles(basePath, fileTree);
         });
     </script>
 
