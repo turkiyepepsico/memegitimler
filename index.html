@@ -10,6 +10,7 @@
             display: flex;
             height: 100vh;
             margin: 0;
+            user-select: none; /* Seçmeyi engelle */
         }
         #menu {
             width: 300px;
@@ -17,7 +18,6 @@
             padding: 15px;
             overflow-y: auto;
             border-right: 2px solid #ccc;
-            height: 100vh;
         }
         .folder {
             font-weight: bold;
@@ -36,7 +36,6 @@
             background: #ddd;
             border-radius: 5px;
             margin: 3px 0;
-            cursor: pointer;
         }
         .file a:hover {
             background: #bbb;
@@ -44,55 +43,39 @@
         #content {
             flex: 1;
             padding: 10px;
-            overflow: hidden;
         }
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
-        .viewer-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
         .loading {
-            font-size: 18px;
-            color: #555;
+            font-size: 14px;
+            color: #666;
             text-align: center;
-            padding: 20px;
-        }
-        /* Sağ tıklamayı engelle */
-        body, iframe, video {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+            padding: 10px;
         }
     </style>
 </head>
-<body oncontextmenu="return false;">  <!-- Sağ tıklamayı tamamen engelle -->
+<body>
 
     <!-- Sol Menü -->
     <div id="menu">
         <h3>Eğitim İçerikleri</h3>
-        <div id="fileTree">Yükleniyor...</div>
+        <div id="fileTree">
+            <div class="loading">Yükleniyor...</div>
+        </div>
     </div>
 
     <!-- Sağ İçerik Alanı -->
     <div id="content">
-        <div id="viewer" class="viewer-container">
-            <p class="loading">Eğitim Dosyasını Seçiniz...</p>
-        </div>
+        <iframe id="viewer" src=""></iframe>
     </div>
 
     <script>
         const repoOwner = "turkiyepepsico";  // GitHub kullanıcı adı
         const repoName = "memegitimler";     // Repo adı
-        const branch = "main";               // Şube adı (genellikle "main" veya "master")
+        const branch = "main";               // Şube adı
         const basePath = "egitimler";        // Ana klasör yolu
 
         async function fetchGitHubFiles(path, parentElement) {
@@ -101,6 +84,9 @@
                 const response = await fetch(url);
                 if (!response.ok) throw new Error("Dosya listesi alınamadı");
                 const data = await response.json();
+
+                // "Yükleniyor..." yazısını kaldır
+                document.querySelector(".loading").style.display = "none";
 
                 // Klasörleri ve dosyaları ayır
                 const folders = data.filter(item => item.type === "dir");
@@ -113,7 +99,7 @@
                     folderElement.textContent = "📁 " + folder.name;
                     folderElement.onclick = function () {
                         const childFiles = folderElement.nextElementSibling;
-                        childFiles.style.display = (childFiles.style.display === "none") ? "block" : "none";
+                        childFiles.style.display = childFiles.style.display === "none" ? "block" : "none";
                     };
 
                     const childFilesElement = document.createElement("div");
@@ -131,7 +117,8 @@
                     const fileElement = document.createElement("a");
                     fileElement.href = "#";
                     fileElement.textContent = "📄 " + file.name;
-                    fileElement.onclick = function () {
+                    fileElement.onclick = function (event) {
+                        event.preventDefault(); // İndirmeyi engelle
                         openFile(file.download_url, file.name);
                     };
                     parentElement.appendChild(fileElement);
@@ -139,7 +126,6 @@
 
             } catch (error) {
                 console.error("Hata:", error);
-                parentElement.innerHTML = "Dosyalar yüklenirken bir hata oluştu.";
             }
         }
 
@@ -147,35 +133,34 @@
             const viewer = document.getElementById("viewer");
             const extension = fileName.split('.').pop().toLowerCase();
 
-            viewer.innerHTML = ''; // Önceki içeriği temizle
-
-            // Sağ tıklamayı ve kopyalamayı engelle
-            viewer.addEventListener('contextmenu', (e) => e.preventDefault());
-
             if (extension === 'pdf') {
-                const iframe = document.createElement("iframe");
-                iframe.src = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
-                viewer.appendChild(iframe);
+                viewer.src = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
             } else if (['ppt', 'pptx', 'doc', 'docx'].includes(extension)) {
-                const iframe = document.createElement("iframe");
-                iframe.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
-                viewer.appendChild(iframe);
+                viewer.src = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
             } else if (['mp4', 'mov', 'avi'].includes(extension)) {
-                const video = document.createElement("video");
-                video.controls = true;
-                video.src = url;
-                viewer.appendChild(video);
+                viewer.src = url;
             } else {
-                viewer.innerHTML = `<p>Bu dosya türü desteklenmiyor.</p>`;
+                viewer.src = "";
+                alert("Bu dosya formatı desteklenmiyor.");
             }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            const fileTree = document.getElementById("fileTree");
-            fileTree.innerHTML = "<div class='loading'>Yükleniyor...</div>";
-            fetchGitHubFiles(basePath, fileTree);
+            fetchGitHubFiles(basePath, document.getElementById("fileTree"));
         });
 
+        // Sağ tıklama menüsünü engelle
+        document.addEventListener("contextmenu", event => event.preventDefault());
+
+        // Klavye ile kaydetmeyi engelle (Ctrl+S, Ctrl+P, F12 vb.)
+        document.addEventListener("keydown", function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                const key = event.key.toLowerCase();
+                if (["s", "p", "u", "a", "c"].includes(key) || event.keyCode === 123) {
+                    event.preventDefault();
+                }
+            }
+        });
     </script>
 
 </body>
