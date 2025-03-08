@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const repoOwner = "kullaniciadi"; // GitHub kullanıcı adın
-    const repoName = "mem-egitim";    // Repo adı
+    const repoOwner = "turkiyepepsico"; // GitHub kullanıcı adın
+    const repoName = "memegitimler";    // Repo adı
     const folderPath = "egitimler";   // İçeriğin olduğu klasör
 
     const menuList = document.getElementById("menu-list");
